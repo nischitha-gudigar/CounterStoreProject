@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { filter, map, skip, startWith, take } from 'rxjs/operators';
 import { increment, decrement, reset } from '../counter.actions';
 
@@ -14,6 +14,27 @@ export class MyCounterComponent {
 
   constructor(private store: Store<{ count: number }>) {
     this.count$ = store.select('count');
+  }
+
+  increment() {
+    this.store.dispatch(increment());
+    // this.calculateSeries();
+    this.calculateMath('add');
+    this.calculateMath('mul');
+  }
+
+  decrement() {
+    this.store.dispatch(decrement());
+    this.calculateSeries();
+    this.calculateMath('add');
+    this.calculateMath('mul');
+  }
+
+  reset() {
+    this.store.dispatch(reset());
+  }
+
+  calculateSeries() {
     //Display squared value for each like 0,4,9
     this.count$
       .pipe(map(res => res * res))
@@ -44,15 +65,16 @@ export class MyCounterComponent {
       .subscribe(value => console.log('start with 100', value));
   }
 
-  increment() {
-    this.store.dispatch(increment());
-  }
-
-  decrement() {
-    this.store.dispatch(decrement());
-  }
-
-  reset() {
-    this.store.dispatch(reset());
+  calculateMath(val: string) {
+    let operators$ = new BehaviorSubject('');
+    operators$.next(val);
+    combineLatest(this.count$, operators$).subscribe(res => {
+      console.log(res);
+      if (res[1] == 'add') {
+        console.log(res[0] + res[0]);
+      } else if (res[1] == 'mul') {
+        console.log(res[0] * res[0]);
+      }
+    });
   }
 }
