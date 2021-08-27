@@ -18,7 +18,7 @@ export class MyCounterComponent {
 
   increment() {
     this.store.dispatch(increment());
-    // this.calculateSeries();
+    this.calculateSeries();
     this.calculateMath('add');
     this.calculateMath('mul');
   }
@@ -66,7 +66,7 @@ export class MyCounterComponent {
   }
 
   calculateMath(val: string) {
-    let operators$ = new BehaviorSubject('');
+    let operators$ = new BehaviorSubject<string>('');
     operators$.next(val);
     combineLatest(this.count$, operators$).subscribe(res => {
       console.log(res);
