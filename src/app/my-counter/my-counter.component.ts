@@ -11,23 +11,19 @@ import { increment, decrement, reset } from '../counter.actions';
 })
 export class MyCounterComponent {
   count$: Observable<number>;
-
+  operators$ = new BehaviorSubject<string>('');
   constructor(private store: Store<{ count: number }>) {
     this.count$ = store.select('count');
   }
 
   increment() {
     this.store.dispatch(increment());
-    this.calculateSeries();
-    this.calculateMath('add');
-    this.calculateMath('mul');
+    // this.calculateSeries();
   }
 
   decrement() {
     this.store.dispatch(decrement());
-    this.calculateSeries();
-    this.calculateMath('add');
-    this.calculateMath('mul');
+    // this.calculateSeries();
   }
 
   reset() {
@@ -65,16 +61,18 @@ export class MyCounterComponent {
       .subscribe(value => console.log('start with 100', value));
   }
 
-  calculateMath(val: string) {
-    let operators$ = new BehaviorSubject<string>('');
-    operators$.next(val);
-    combineLatest(this.count$, operators$).subscribe(res => {
-      console.log(res);
-      if (res[1] == 'add') {
-        console.log(res[0] + res[0]);
-      } else if (res[1] == 'mul') {
-        console.log(res[0] * res[0]);
+  calculate(val) {
+    this.operators$.next(val);
+    combineLatest(this.count$, this.operators$).subscribe(
+      ([count, operation]) => {
+        console.log(operation);
+        if (operation === 'add') {
+          console.log('result of add', count + count);
+        }
+        if (operation === 'mul') {
+          console.log('result of mul', count * count);
+        }
       }
-    });
+    );
   }
 }
